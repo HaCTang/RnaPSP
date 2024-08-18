@@ -151,7 +151,7 @@ $$
 
 Pooling is something like a nonlinear dimensionality reduction technique here to deal with the sequence out of the idea that the symmetry is not that important, but the local component matters.
 
-![image.png](RNA%20e95a33de4ee9479b987d24b5f8ec15da/image%201.png)
+![image.png](images/pooling%20of%20RNA.png)
 
 # 5 Machine Learning Models (not done)
 
