@@ -8,7 +8,6 @@ Stick the head and tail of the RNA
 
 # 1 Wash Data (done)
 
-![image.png](RNA%20e95a33de4ee9479b987d24b5f8ec15da/image.png)
 
 # 2 Base Ratio (done)
 
