@@ -206,35 +206,56 @@ def vector_gen(func: callable, seq: str) -> np.ndarray:
     vector = np.array(func(seq))
     return vector
 
-def Mercers_kernel(vec1:np.ndarray, vec2:np.ndarray,
+def Mercers_kernel(vec1:list, vec2:list,
                     atten_mat:np.ndarray) -> np.ndarray:
+    vec1 = np.array(vec1)
+    vec2 = np.array(vec2)
     K = np.dot(np.dot(vec1, atten_mat), vec2.T)
     return K
+
+ # 08.20.2024 added by Haocheng
+def trim_sequence(seq: np.ndarray, ext_b: int) -> np.ndarray:
+    """
+    only used in slide_window_* functions
+    trim the edge of the sequence
+    """
+    if ext_b == 0:
+        return seq
+    elif ext_b % 2 == 0:
+        half = ext_b // 2
+        return seq[half:-half]
+    elif ext_b % 2 == 1:
+        front = (ext_b - 1) // 2
+        back = (ext_b + 1) // 2
+        return seq[front:-back]
 
 def slide_window_kernel(func: callable, seq: str, window_size: int) -> np.ndarray:
     """
     @param func: rule_*
     """
-    kernel = []
-    seq1 = filter_nucleotides(seq)
-    N_b = len(seq1)
-    seq1 = func(seq1)
-    ext_b = N_b % window_size
-    N_mat = N_b // window_size
-    
-    if ext_b % 2 == 0:
-        del seq1[:(ext_b/2)]
-        del seq1[(ext_b/2):] 
+    if seq == "":
+        return np.array([])
     else:
-        del seq1[:((ext_b+1)/2)]
-        del seq1[((ext_b-1)/2):] 
+        kernel = []
+        seq1 = filter_nucleotides(seq)
+        N_b = len(seq1)
+        seq1 = func(seq1)
+        # print(f"Filtered sequence: {seq1}")
+        ext_b = N_b % window_size
+        N_mat = N_b // window_size
+        # print(f"ext_b: {ext_b}")
+        
+        seq1 = trim_sequence(seq1, ext_b)
 
-    split_mat = [seq1[i:i + window_size] for i in range(0, N_mat, window_size)]
+        split_mat = [seq1[i:i + window_size] for i in range(0, N_mat * window_size, window_size)]
 
-    for i in range(0, N_mat-1):
-        kernel.append(Mercers_kernel(split_mat[i], split_mat[1], selfatten_mat_gen(window_size)))
+        for i in range(0, N_mat-1):
+            if len(split_mat[i]) == window_size:
+                kernel.append(Mercers_kernel(split_mat[i], split_mat[i+1], selfatten_mat_gen(window_size)))
+            else:
+                kernel.append(0)
 
-    return np.array(kernel)
+        return np.array(kernel)
 
 
 '''
@@ -250,28 +271,38 @@ def seq_pooling(func: callable, seq: str, l: int,
     @param l: length of pooling vector
     @param gate_value: nonlinear threshold to control the pooling
     """
-    seq1 = filter_nucleotides(seq)
-    N_b = len(seq1)
-    seq1 = func(seq1)
-    ext_b = N_b % l
-    N_mat = N_b // l
-    seq2 = []
-    
-    if ext_b % 2 == 0:
-        del seq1[:(ext_b/2)]
-        del seq1[(ext_b/2):] 
+    if seq == "":
+        return np.array([])
     else:
-        del seq1[:((ext_b+1)/2)]
-        del seq1[((ext_b-1)/2):] 
-    
-    # split the sequence into blocks
-    split_mat = [seq1[i:i + l] for i in range(0, N_mat, l)]
+        seq1 = filter_nucleotides(seq)
+        N_b = len(seq1)
+        seq1 = func(seq1)
+        ext_b = N_b % l
+        N_mat = N_b // l
+        seq2 = []
+        
+        seq1 = trim_sequence(seq1, ext_b)
+        
+        # split the sequence into blocks
+        split_mat = [seq1[i:i + l] for i in range(0, N_mat, l)]
 
-    for i in range (N_mat):
-        if sum(split_mat[i]) >= gate_value/2:
-            seq2.append(1)
-        else:
-            seq2.append(0)
+        for i in range (N_mat):
+            if sum(split_mat[i]) >= gate_value/2:
+                seq2.append(1)
+            else:
+                seq2.append(0)
 
-    return np.array(seq2)
+        return np.array(seq2)
 
+#to do: apply the above functions to the data
+PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSelf1Less500.csv')
+PsData = PsData.dropna(axis=1, how='all')
+
+# Apply the slide_window_kernel function to the PsData
+PsData['kernel_result'] = PsData['rna_sequence'].apply(
+    lambda seq: slide_window_kernel(rule_SW, seq, window_size=3)
+)
+
+PsData = PsData.reset_index()
+PsData = PsData.drop('level_0', axis=1)
+PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSelf1Less500.csv', index=False, encoding='utf-8-sig')

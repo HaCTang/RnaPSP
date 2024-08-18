@@ -91,7 +91,7 @@ PsData = PsData.dropna(axis=1, how='all')
 
 # Apply the sliding window entropy calculation to each RNA sequence
 PsData['kolmogorov_complexity'] = PsData['rna_sequence'].apply(
-    lambda seq: slide_window_entropy(compute_kolmogorov_complexity, seq, window_size=6, step_size=1)
+    lambda seq: slide_window_entropy(compute_kolmogorov_complexity, seq, window_size=6, step_size=6)
 )
 PsData['shannon_entropy'] = PsData['rna_sequence'].apply(
     lambda seq: slide_window_entropy(compute_shannon_entropy, seq, window_size=6, step_size=1)
