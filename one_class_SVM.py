@@ -41,5 +41,6 @@ oc_svm.fit(X)
 # Predict the class of each sample
 predictions = oc_svm.predict(X)
 df['Prediction'] = predictions
+df.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\test.csv', index=False, encoding='utf-8-sig')
 
-print(df)
+

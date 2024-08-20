@@ -56,11 +56,11 @@ https://wenku.csdn.net/answer/1d38534721c24c4b9e22d7ad3135cb18?ydreferer=aHR0cHM
 def slide_window_entropy(func: callable, data: str, window_size: int, step_size: int)->float:
     """
     * Using slide window to compute partial evenness
-    * @param func: compute_kolmogorov_complexity / using compute_shannon_entropy
-    * @param data: sequence
-    * @param window_size: window size >= 1
-    * @param step_size: step size >= 1
-    * @return: entropy
+    @param func: compute_kolmogorov_complexity / using compute_shannon_entropy
+    @param data: sequence
+    @param window_size: window size >= 1
+    @param step_size: step size >= 1
+    @return: entropy
     """
     entropy = 0
     for i in range(0, (len(data) - window_size + step_size - 1), step_size):

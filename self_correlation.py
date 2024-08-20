@@ -24,49 +24,49 @@ def filter_nucleotides(seq: str)->str:
 
 def rule_SW(seq: str):
     """
-    rule_SW: C or G = 1, A or U = 0
+    * rule_SW: C or G = 1, A or U = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'C' or char == 'G' else 0 for char in seq]
 
 def rule_RY(seq: str):
     """
-    rule_RY: A or G = 1, C or U = 0
+    * rule_RY: A or G = 1, C or U = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'A' or char == 'G' else 0 for char in seq]
 
 def rule_KM(seq: str):
     """
-    rule_KM: G or U = 1, C or A = 0
+    * rule_KM: G or U = 1, C or A = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'G' or char == 'U' else 0 for char in seq]
 
 def rule_A(seq: str):
     """
-    rule_A: A = 1, other = 0
+    * rule_A: A = 1, other = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'A' else 0 for char in seq]
 
 def rule_U(seq: str):
     """
-    rule_U: U = 1, other = 0
+    * rule_U: U = 1, other = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'U' else 0 for char in seq]
 
 def rule_G(seq: str):
     """
-    rule_G: G = 1, other = 0
+    * rule_G: G = 1, other = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'G' else 0 for char in seq]
 
 def rule_C(seq: str):
     """
-    rule_C: C = 1, other = 0
+    * rule_C: C = 1, other = 0
     """
     seq = filter_nucleotides(seq)
     return [1 if char == 'C' else 0 for char in seq]
@@ -128,7 +128,7 @@ def auto_correl(func: callable, seq: str, l: int) -> float:
 # 08.15.2024 added by Haocheng
 def par1_base(sub_seq: np.ndarray) -> float:
     """
-    return the percentage of ones in sub_seq
+    * return the percentage of ones in sub_seq
     """
     if sub_seq.ndim != 1:
         raise ValueError("The input must be 1d np.ndarray")
@@ -171,7 +171,7 @@ def auto_correl_cg(func: callable, seq: str, l: int) -> np.ndarray:
 
 def diagmat_gen(func: callable, seq: str) -> np.ndarray:
     """
-    diagonal matrix generator, based on the rule and sequence
+    * diagonal matrix generator, based on the rule and sequence
     @param func: rule_*
     """
     vector = func(seq)
@@ -180,7 +180,7 @@ def diagmat_gen(func: callable, seq: str) -> np.ndarray:
 # 08.13.2024 modified by Haocheng
 def selfatten_mat_gen(N: str) -> np.ndarray:
     """
-    self-attention matrix generator, based on the length of sequence
+    * self-attention matrix generator, based on the length of sequence
     """
     selfatten_mat = np.zeros((N, N))
 
@@ -216,8 +216,8 @@ def Mercers_kernel(vec1:list, vec2:list,
  # 08.20.2024 added by Haocheng
 def trim_sequence(seq: np.ndarray, ext_b: int) -> np.ndarray:
     """
-    only used in slide_window_* functions
-    trim the edge of the sequence
+    * only used in slide_window_* functions
+    * trim the edge of the sequence
     """
     if ext_b == 0:
         return seq
@@ -266,7 +266,7 @@ def slide_window_kernel(func: callable, seq: str, window_size: int) -> np.ndarra
 def seq_pooling(func: callable, seq: str, l: int, 
                 gate_value: Union[int, float]) -> np.ndarray:
     """
-    Pooling of sequence
+    * Pooling of sequence
     @param seq: sequence
     @param l: length of pooling vector
     @param gate_value: nonlinear threshold to control the pooling
@@ -284,10 +284,10 @@ def seq_pooling(func: callable, seq: str, l: int,
         seq1 = trim_sequence(seq1, ext_b)
         
         # split the sequence into blocks
-        split_mat = [seq1[i:i + l] for i in range(0, N_mat, l)]
+        split_mat = [seq1[i:i + l] for i in range(0, N_mat * l, l)]
 
         for i in range (N_mat):
-            if sum(split_mat[i]) >= gate_value/2:
+            if sum(split_mat[i]) >= gate_value:
                 seq2.append(1)
             else:
                 seq2.append(0)
@@ -299,8 +299,12 @@ PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSe
 PsData = PsData.dropna(axis=1, how='all')
 
 # Apply the slide_window_kernel function to the PsData
-PsData['kernel_result'] = PsData['rna_sequence'].apply(
+PsData['SW_kernel_result'] = PsData['rna_sequence'].apply(
     lambda seq: slide_window_kernel(rule_SW, seq, window_size=3)
+)
+
+PsData['SW_pooling_result'] = PsData['rna_sequence'].apply(
+    lambda seq: seq_pooling(rule_SW, seq, l=5, gate_value=2)
 )
 
 PsData = PsData.reset_index()
