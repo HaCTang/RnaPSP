@@ -66,6 +66,7 @@ def extract_rna_length(row):
 
 PsSelf1Data['rna_length_num'] = PsSelf1Data.apply(extract_rna_length, axis=1)
 PsRnaPro['rna_length_num'] = PsRnaPro.apply(extract_rna_length, axis=1)
+PsData['rna_length_num'] = PsData.apply(extract_rna_length, axis=1)
 
 
 PsSelf1Less500 = PsSelf1Data[
@@ -80,7 +81,12 @@ PsRnaProLess500 = PsRnaPro[
 PsRnaProLess500 = PsRnaProLess500.reset_index()
 PsRnaProLess500.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsRnaPro\PsRnaProLess500.csv',
                     index=True, encoding='utf-8-sig')
-
+PsLess500 = PsData[
+    PsData['rna_length_num'].apply(lambda x: isinstance(x, int) and x <= 500)
+]
+PsLess500 = PsLess500.reset_index()
+PsLess500.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv',
+                    index=True, encoding='utf-8-sig')
 
 PsSelf1More500 = PsSelf1Data[
     PsSelf1Data['rna_length_num'].apply(lambda x: isinstance(x, int) and x > 500)

@@ -9,9 +9,6 @@ import numpy as np
 to do: compute base ratio for all data
 '''
 
-PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSelf1Less500.csv')
-PsData = PsData.dropna(axis=1, how='all')
-
 # not use data with multiple RNAs, only use data with one RNA
 def compute_base_ratio(row):
     
@@ -43,9 +40,6 @@ def compute_base_ratio(row):
     else:
         return A_num / total_bases, U_num / total_bases, G_num / total_bases, C_num / total_bases
     
-# Apply the function and expand the tuple into separate columns
-PsData[['A_ratio', 'U_ratio', 'G_ratio', 'C_ratio']] = PsData.apply(compute_base_ratio, axis=1, result_type='expand')
-
 
 '''
 08.11.2024 by Haocheng
@@ -68,12 +62,20 @@ def compute_AU_ratio(row):
     else:
         return A_ratio / U_ratio
 
+
+PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+PsData = PsData.dropna(axis=1, how='all')
+
+# Apply the function and expand the tuple into separate columns
+PsData[['A_ratio', 'U_ratio', 'G_ratio', 'C_ratio']] = PsData.apply(compute_base_ratio, axis=1, result_type='expand')
+
 PsData['GC_ratio'] = PsData.apply(compute_GC_ratio, axis=1)
 PsData['AU_ratio'] = PsData.apply(compute_AU_ratio, axis=1)
 
-
+PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.reset_index()
 PsData = PsData.drop('Unnamed: 0', axis=1)
 # PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.drop('index', axis=1)
-PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSelf1Less500.csv', index=True, encoding='utf-8-sig')
+PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv',
+              index=True, encoding='utf-8-sig')

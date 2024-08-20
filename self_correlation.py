@@ -9,7 +9,7 @@ from typing import Union
 # https://doi.org/10.1016/S0378-1119(02)01037-5
 # https://blog.csdn.net/u013655530/article/details/47257525#:~:text=%E8%87%AA%E7%9B%B8%E5%85%B3%E6%98%AF%E4%BA%92%E7%9B%B8%E5%85%B3%E7%9A%84,%E5%8F%96%E5%80%BC%E7%9A%84%E7%9B%B8%E4%BC%BC%E7%A8%8B%E5%BA%A6%E3%80%82
 
-
+##############################################################################
 '''
 08.11.2024 by Haocheng
 to do: define rules and corresponding assignment 
@@ -73,8 +73,9 @@ def rule_C(seq: str):
 
 # print(type(rule_C("CAGCAGCAGCAGCAGCAGCAG")))
 # print(rule_C("CAGCAGCAGCAGCAGCAGCAG"))
+##############################################################################
 
-
+##############################################################################
 '''
 08.11.2024 by Haocheng
 to do: compute auto-correlation
@@ -123,7 +124,24 @@ def auto_correl(func: callable, seq: str, l: int) -> float:
 # print(auto_correl(rule_SW, "CAGCAGCAGCAGCAGCAGCAG", 3))
 # print(auto_correl(rule_SW, "CAGCAGCAGCAGCAGCAGCAG", 2))
 # print(auto_correl(rule_U, "CAGCAGCAGCAGCAGCAGCAG", 2))
+##############################################################################
 
+##############################################################################
+ # 08.20.2024 added by Haocheng
+def trim_sequence(seq: np.ndarray, ext_b: int) -> np.ndarray:
+    """
+    * only used in slide_window_* functions
+    * trim the edge of the sequence
+    """
+    if ext_b == 0:
+        return seq
+    elif ext_b % 2 == 0:
+        half = ext_b // 2
+        return seq[half:-half]
+    elif ext_b % 2 == 1:
+        front = (ext_b - 1) // 2
+        back = (ext_b + 1) // 2
+        return seq[front:-back]
 
 # 08.15.2024 added by Haocheng
 def par1_base(sub_seq: np.ndarray) -> float:
@@ -149,21 +167,18 @@ def auto_correl_cg(func: callable, seq: str, l: int) -> np.ndarray:
     N_mat = N_b // l
     seq2 = []
 
-    if ext_b % 2 == 0:
-        del seq1[:(ext_b/2)]
-        del seq1[(ext_b/2):] 
-    else:
-        del seq1[:((ext_b+1)/2)]
-        del seq1[((ext_b-1)/2):] 
+    seq1 = trim_sequence(seq1, ext_b)
 
     # split the sequence into blocks
-    split_mat = [seq1[i:i + l] for i in range(0, N_mat, l)]
+    split_mat = [seq1[i:i + l] for i in range(0, N_mat * l, l)]
 
     for i in range (N_mat):
         seq2.append(par1_base(split_mat[i]))
 
     return np.array(seq2)
+##############################################################################
 
+##############################################################################
 '''
 08.11.2024-08.13.2024 by Haocheng
 # to do: self-atten matrix 
@@ -213,21 +228,6 @@ def Mercers_kernel(vec1:list, vec2:list,
     K = np.dot(np.dot(vec1, atten_mat), vec2.T)
     return K
 
- # 08.20.2024 added by Haocheng
-def trim_sequence(seq: np.ndarray, ext_b: int) -> np.ndarray:
-    """
-    * only used in slide_window_* functions
-    * trim the edge of the sequence
-    """
-    if ext_b == 0:
-        return seq
-    elif ext_b % 2 == 0:
-        half = ext_b // 2
-        return seq[half:-half]
-    elif ext_b % 2 == 1:
-        front = (ext_b - 1) // 2
-        back = (ext_b + 1) // 2
-        return seq[front:-back]
 
 def slide_window_kernel(func: callable, seq: str, window_size: int) -> np.ndarray:
     """
@@ -256,8 +256,9 @@ def slide_window_kernel(func: callable, seq: str, window_size: int) -> np.ndarra
                 kernel.append(0)
 
         return np.array(kernel)
+##############################################################################
 
-
+##############################################################################
 '''
 08.14.2024 by Haocheng
 # to do: Pooling of sequence 
@@ -293,20 +294,51 @@ def seq_pooling(func: callable, seq: str, l: int,
                 seq2.append(0)
 
         return np.array(seq2)
+##############################################################################
 
+##############################################################################
+'''
+08.20.2024 by Haocheng
+to do: compute the average value and variance of the vector
+'''
+def vector_var(vec: np.ndarray) -> float:
+    """
+    * compute the variance of the vector
+    """
+    if len(vec) == 0:
+        return np.nan
+    return np.var(vec)
+
+def vector_avg(vec: np.ndarray) -> float:
+    """
+    * compute the average value of the vector
+    """
+    if len(vec) == 0:
+        return np.nan
+    return np.mean(vec)
+
+##############################################################################
+
+##############################################################################
 #to do: apply the above functions to the data
-PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSelf1Less500.csv')
+PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
 
 # Apply the slide_window_kernel function to the PsData
 PsData['SW_kernel_result'] = PsData['rna_sequence'].apply(
     lambda seq: slide_window_kernel(rule_SW, seq, window_size=3)
 )
+PsData['SW_kernel_avg'] = PsData['SW_kernel_result'].apply(vector_avg)
+PsData['SW_kernel_var'] = PsData['SW_kernel_result'].apply(vector_var)
 
 PsData['SW_pooling_result'] = PsData['rna_sequence'].apply(
     lambda seq: seq_pooling(rule_SW, seq, l=5, gate_value=2)
 )
+PsData['SW_pooling_avg'] = PsData['SW_pooling_result'].apply(vector_avg)
+PsData['SW_pooling_var'] = PsData['SW_pooling_result'].apply(vector_var)
 
 PsData = PsData.reset_index()
 PsData = PsData.drop('level_0', axis=1)
-PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsSelf1Less500.csv', index=False, encoding='utf-8-sig')
+PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv',
+              index=False, encoding='utf-8-sig')
+##############################################################################
