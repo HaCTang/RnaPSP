@@ -41,6 +41,16 @@ PsRnaPro.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsRnaPro\
 
 ##############################################################################
 '''
+08.21.2024 by Haocheng
+to do: delete the repeated sequences acording to the column "rpsid"
+'''
+def delete_repeated_sequences(data):
+    data = data.drop_duplicates(subset='rpsid')
+    data = data.reset_index()
+    data = data.drop('index', axis=1)
+    return data
+
+'''
 08.10.2024 by Haocheng
 to do: read the column "rna_length" and find the number before "nt", 
 if it is less than 500, keep the column in Ps*Less500. 
@@ -84,6 +94,10 @@ PsRnaProLess500.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\Ps
 PsLess500 = PsData[
     PsData['rna_length_num'].apply(lambda x: isinstance(x, int) and x <= 500)
 ]
+# delete the rows if the column "rna_sequence" is "-"
+PsLess500 = PsLess500[PsLess500['rna_sequence'] != '-']
+# delete the repeated sequences
+PsLess500 = delete_repeated_sequences(PsLess500)
 PsLess500 = PsLess500.reset_index()
 PsLess500.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv',
                     index=True, encoding='utf-8-sig')
