@@ -6,7 +6,7 @@ import pandas as pd
 # https://www.tbi.univie.ac.at/RNA/RNAfold.1.html
 
 """
-21.08.2024-22.08.2024 by Haocheng 
+08.21.2024-08.22.2024 by Haocheng 
 Only be used in Linux environment
 computing the Physics-based features of RNA sequences
 """
