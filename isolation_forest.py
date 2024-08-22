@@ -37,11 +37,9 @@ X = df[['GC_ratio',
 
 # Fill NaN values with the mean of the column
 X.fillna(X.mean(), inplace=True)
-
 # Replace infinite values with a large boond
 X.replace([np.inf, -np.inf], np.nan, inplace=True)
 X = X.clip(lower=-1e10, upper=1e10)
-
 # Fill NaN values with the mean of the column
 X.fillna(X.mean(), inplace=True)
 
@@ -57,9 +55,9 @@ df['label'] = iso_forest.predict(X)
 df['score'] = iso_forest.decision_function(X)
 # anomalies = df[df['anomaly'] == -1]
 # print(anomalies)
-mean_feature1 = df['label'].sum()
+sum_feature1 = df['label'].sum()
 mean_feature2 = df['score'].mean()
-print(mean_feature1, mean_feature2)
+print(sum_feature1, mean_feature2)
 print(df[df.label==-1])
 df.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\test_IsoFor.csv', 
           index=False, encoding='utf-8-sig')
@@ -90,37 +88,37 @@ os.makedirs(output_dir, exist_ok=True)
 
 output_path = os.path.join(output_dir, 'iso_fore_histogram.png') 
 plt.savefig(output_path)
-plt.close()
+plt.close()# ROC 曲线
+# fpr, tpr, _ = roc_curve(df['label'], df['score'])
+# roc_auc = auc(fpr, tpr)
+# plt.figure(figsize=(8, 6))
+# plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
+# plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+# plt.xlim([0.0, 1.0])
+# plt.ylim([0.0, 1.05])
+# plt.xlabel('False Positive Rate')
+# plt.ylabel('True Positive Rate')
+# plt.title('Receiver Operating Characteristic (ROC) Curve')
+# plt.legend(loc='lower right')
+# output_path = os.path.join(output_dir, 'iso_fore_ROC.png') 
+# plt.savefig(output_path)
+# plt.close()
+
+# # Precision-Recall 曲线
+# precision, recall, _ = precision_recall_curve(df['label'], df['score'])
+# pr_auc = auc(recall, precision)
+# plt.figure(figsize=(8, 6))
+# plt.plot(recall, precision, color='blue', lw=2, label=f'PR curve (area = {pr_auc:.2f})')
+# plt.xlabel('Recall')
+# plt.ylabel('Precision')
+# plt.title('Precision-Recall (PR) Curve')
+# plt.legend(loc='lower left')
+# output_path = os.path.join(output_dir, 'iso_fore_Precision-Recall.png') 
+# plt.savefig(output_path)
+# plt.close()
 ##############################################################################
 
-# ROC 曲线
-fpr, tpr, _ = roc_curve(df['label'], df['score'])
-roc_auc = auc(fpr, tpr)
-plt.figure(figsize=(8, 6))
-plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
-plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-plt.xlim([0.0, 1.0])
-plt.ylim([0.0, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver Operating Characteristic (ROC) Curve')
-plt.legend(loc='lower right')
-output_path = os.path.join(output_dir, 'iso_fore_ROC.png') 
-plt.savefig(output_path)
-plt.close()
-
-# Precision-Recall 曲线
-precision, recall, _ = precision_recall_curve(df['label'], df['score'])
-pr_auc = auc(recall, precision)
-plt.figure(figsize=(8, 6))
-plt.plot(recall, precision, color='blue', lw=2, label=f'PR curve (area = {pr_auc:.2f})')
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.title('Precision-Recall (PR) Curve')
-plt.legend(loc='lower left')
-output_path = os.path.join(output_dir, 'iso_fore_Precision-Recall.png') 
-plt.savefig(output_path)
-plt.close()
+# 
 
 # 可视化异常点
 plt.figure(figsize=(10, 6))
