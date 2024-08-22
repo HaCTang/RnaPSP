@@ -2,6 +2,9 @@ import RNA
 import numpy as np
 import pandas as pd
 
+# https://viennarna.readthedocs.io/en/latest/api_python.html#RNA.fold_compound.mfe
+# https://www.tbi.univie.ac.at/RNA/RNAfold.1.html
+
 """
 21.08.2024-22.08.2024 by Haocheng 
 Only be used in Linux environment
