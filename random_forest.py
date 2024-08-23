@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# 读取数据
 df = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
 
 ##############################################################################
