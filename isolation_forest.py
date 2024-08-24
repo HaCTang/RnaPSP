@@ -118,8 +118,6 @@ plt.close()
 # plt.close()
 ##############################################################################
 
-# 
-
 # 可视化异常点
 plt.figure(figsize=(10, 6))
 sns.scatterplot(x='GC_ratio', y='shannon_entropy', hue='label', palette={1: 'blue', -1: 'red'}, data=df)
