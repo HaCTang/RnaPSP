@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FOLDER_PATH="/home/thc/RnaPSP/RnaPSP"
+FOLDER_PATH="/home/thc/RnaPSP/RnaPSP/data_preparation"
 cd "$FOLDER_PATH"
 
 FILES_TO_RUN=(

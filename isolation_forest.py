@@ -81,7 +81,7 @@ plt.xlabel('Scores')
 plt.ylabel('Frequency')
 
 # save the plot
-output_dir = 'Images'
+output_dir = 'images'
 os.makedirs(output_dir, exist_ok=True) 
 
 output_path = os.path.join(output_dir, 'iso_fore_histogram.png') 
