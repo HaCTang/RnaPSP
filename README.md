@@ -2,6 +2,14 @@
 
 Only to be used on Linux.
 
+ViennaRNA 2.6.4 required （only on Linux）
+
+python > 3.6 (best between 3.6 - 3.8)
+
+```bash
+python -m pip install viennarna
+```
+
 # 0 Enlarging Dataset (not done)
 
 Delete\Replace 20% of the sequence of RNA
@@ -155,12 +163,32 @@ Pooling is something like a nonlinear dimensionality reduction technique here to
 
 ![image.png](images/pooling%20of%20RNA.png)
 
-# 5 Machine Learning Models (not done)
+# 5 RNAfold-based descriptors
 
-## 5.1 One-class SVM
+mfe_energy: minimum free energy
 
-## 5.2 Linear Regression
+fc_energy: free energy of ensemble
 
-## 5.3 Isolation Forest
+mea_score: maximum expected accuracy
+
+cen_distance: the distance from centroid structure to ensemble
+
+cen_energy: centroid structure with its free energy
+
+mfe_freq: the frequency of the MFE representative in the complete ensemble of secondary structures
+
+ensemble_diver: ensemble diversity
+
+mean_bp_distance: mean distance between base pair
+
+# 6 Machine Learning Models (not done)
+
+## 6.1 One-class SVM
+
+## 6.2 Linear Regression
+
+## 6.3 Isolation Forest
+
+## 6.4 Random Forest
 
 random shuffling

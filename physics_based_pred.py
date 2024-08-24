@@ -45,6 +45,7 @@ def calculate_rna_structures(seq):
     results['mfe_energy'] = fold_seq[1]
     results['fc_energy'] = fc_energy
     results['mea_score'] = mea_score
+    results['cen_distance'] = cen_distance
     results['cen_energy'] = cen_energy
     results['mfe_freq'] = mfe_freq
     results['ensemble_diver'] = ensemble_diver
