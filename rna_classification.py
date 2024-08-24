@@ -9,7 +9,7 @@ elif the "rna_classification" is "repeat RNA", then "poly_rna" is 0 and "repeat_
 else, "poly_rna" is 0 and "repeat_rna" is 0
 '''
 
-PsData = pd.read_csv(r"C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv")
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 # PsData = PsData.drop('level_0', axis=1)
 # PsData = PsData.drop('Unnamed: 0', axis=1)
 
@@ -23,6 +23,6 @@ PsData.loc[(PsData['rna_classification'] != 'poly RNA') &
            (PsData['rna_classification'] != 'repeat RNA'), 'else_rna'] = 1
 
 
-PsData.to_csv(r"C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv",
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv',
                 index=False, encoding='utf-8-sig')
 

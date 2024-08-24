@@ -86,7 +86,7 @@ def slide_window_entropy(func: callable, data: str, window_size: int, step_size:
 # print(slide_window_entropy(compute_kolmogorov_complexity, seq2, 8, 2))
 
 #todo: apply the above functions to the data
-PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
 
 # Apply the sliding window entropy calculation to each RNA sequence
@@ -99,5 +99,5 @@ PsData['shannon_entropy'] = PsData['rna_sequence'].apply(
 
 PsData = PsData.reset_index()
 PsData = PsData.drop('level_0', axis=1)
-PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv', index=False, encoding='utf-8-sig')
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv', index=False, encoding='utf-8-sig')
 

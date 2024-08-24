@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-df = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 
 ##############################################################################
 # Replace 0 in 'shannon_entropy' to the maximum value of the column
@@ -59,7 +59,7 @@ sum_feature1 = df['label'].sum()
 mean_feature2 = df['score'].mean()
 print(sum_feature1, mean_feature2)
 print(df[df.label==-1])
-df.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\test_IsoFor.csv', 
+df.to_csv('/home/thc/RnaPSP/RnaPSP/all data/test_IsoFor.csv', 
           index=False, encoding='utf-8-sig')
 
 # df['anomaly'] = df['label'].apply(lambda x: 'outlier' if x==-1  else 'inlier') 
@@ -88,7 +88,9 @@ os.makedirs(output_dir, exist_ok=True)
 
 output_path = os.path.join(output_dir, 'iso_fore_histogram.png') 
 plt.savefig(output_path)
-plt.close()# ROC 曲线
+plt.close()
+
+# ROC 曲线
 # fpr, tpr, _ = roc_curve(df['label'], df['score'])
 # roc_auc = auc(fpr, tpr)
 # plt.figure(figsize=(8, 6))

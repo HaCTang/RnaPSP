@@ -10,7 +10,7 @@ import pandas as pd
 Only be used in Linux environment
 computing the Physics-based features of RNA sequences
 """
-PsData = pd.read_csv(r"RnaFold/PsLess500.csv")
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 def calculate_rna_structures(seq):
     results = {}
 
@@ -60,6 +60,7 @@ PsData = pd.concat([PsData, df_results.apply(pd.Series)], axis=1)
 
 # print(PsData)
 
-PsData = PsData.drop('level_0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.reset_index()
-PsData.to_csv(r'RnaFold/PsLess500.csv', index=False, encoding='utf-8-sig')
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv', 
+              index=False, encoding='utf-8-sig')

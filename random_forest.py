@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-df = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 
 ##############################################################################
 # Replace 0 in 'shannon_entropy' to the maximum value of the column
@@ -108,5 +108,5 @@ print(classification_report(y_extended, rf_classifier.predict(X_extended)))
 print("ROC AUC Score:", roc_auc_score(y_extended, rf_classifier.predict_proba(X_extended)[:, 1]))
 
 # Save the results
-df.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\test_RF.csv', 
+df.to_csv('/home/thc/RnaPSP/RnaPSP/all data/test_RF.csv', 
           index=False, encoding='utf-8-sig')

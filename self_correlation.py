@@ -321,7 +321,7 @@ def vector_avg(vec: np.ndarray) -> float:
 
 ##############################################################################
 #to do: apply the above functions to the data
-PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
 
 # Apply the slide_window_kernel function to the PsData
@@ -339,6 +339,6 @@ PsData['SW_pooling_var'] = PsData['SW_pooling_result'].apply(vector_var)
 
 PsData = PsData.reset_index()
 PsData = PsData.drop('level_0', axis=1)
-PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv',
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv',
               index=False, encoding='utf-8-sig')
 ##############################################################################

@@ -63,7 +63,7 @@ def compute_AU_ratio(row):
         return A_ratio / U_ratio
 
 
-PsData = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
 
 # Apply the function and expand the tuple into separate columns
@@ -77,5 +77,5 @@ PsData = PsData.reset_index()
 PsData = PsData.drop('Unnamed: 0', axis=1)
 # PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.drop('index', axis=1)
-PsData.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv',
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv',
               index=True, encoding='utf-8-sig')

@@ -6,7 +6,7 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import classification_report
 import numpy as np
 
-df = pd.read_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\PsLess500.csv')
+df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 
 ##############################################################################
 '''
@@ -74,7 +74,7 @@ df['label'] = predictions
 sum_feature1 = df['label'].sum()
 print(sum_feature1)
 print(df[df.label==-1])
-df.to_csv(r'C:\Users\23163\Desktop\PS prediction\RnaPSP\all data\test_svm.csv', 
+df.to_csv('/home/thc/RnaPSP/RnaPSP/all data/test_svm.csv', 
           index=False, encoding='utf-8-sig')
 
 
