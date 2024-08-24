@@ -1,5 +1,7 @@
 # RNA
 
+Only to be used on Linux.
+
 # 0 Enlarging Dataset (not done)
 
 Delete\Replace 20% of the sequence of RNA

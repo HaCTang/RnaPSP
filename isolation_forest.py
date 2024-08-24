@@ -35,13 +35,11 @@ X = df[['GC_ratio',
         'repeat_rna',
         'else_rna']].copy()
 
-# Fill NaN values with the mean of the column
-X.fillna(X.mean(), inplace=True)
-# Replace infinite values with a large boond
-X.replace([np.inf, -np.inf], np.nan, inplace=True)
-X = X.clip(lower=-1e10, upper=1e10)
-# Fill NaN values with the mean of the column
-X.fillna(X.mean(), inplace=True)
+# Fill NaN values
+X = X.apply(lambda col: col.fillna(col.mean()), axis=0)
+# Check and handle infinity and out-of-range values
+X = X.replace([np.inf, -np.inf], np.nan)
+X = X.dropna()
 
 # Biuld Isolation Forest model
 iso_forest = IsolationForest(n_estimators=100, max_samples=0.75, contamination=0.05, 
