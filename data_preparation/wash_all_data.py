@@ -170,6 +170,7 @@ PsRnaProRepeat = PsRnaProRepeat.drop('index', axis=1)
 PsRnaProRepeat.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsRnaPro/PsRnaProRepeat.csv',
                      index=True, encoding='utf-8-sig')
 PsRepeat = PsData[PsData['rna_classification'] == 'repeat RNA']
+PsRepeat = delete_repeated_sequences(PsRepeat)
 PsRepeat = PsRepeat.reset_index()
 PsRepeat = PsRepeat.drop('index', axis=1)
 PsRepeat.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsRepeat.csv',
