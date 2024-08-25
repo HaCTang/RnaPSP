@@ -3,7 +3,7 @@
 to do: repeat RNA generator
 '''
 
-def generate_repeat_rna(repeat_unit: str, length: int) -> str:
+def generate_repeat_rna_sequences(repeat_unit: str, length: int) -> str:
     """
     Generates a repeat RNA sequence of the specified length.
 
@@ -29,7 +29,7 @@ def generate_repeat_rna(repeat_unit: str, length: int) -> str:
 # print(f"The generated repeat RNA sequence is: {result}")
 
 '''
-08/25/2024 by Haocheng
+08.25.2024 by Haocheng
 to do: read the RNA sequence from a csv.file
 , and figure out the repeat unit and the length of the repeat RNA
 '''
@@ -79,7 +79,67 @@ def read_rna_sequences_from_csv(file_path: str) -> list:
 
     return results
 
+# # Example usage:
+# results = read_rna_sequences_from_csv("/home/thc/RnaPSP/RnaPSP/all data/PsRepeat.csv")
+# print(results)
+
+'''
+08.25.2024 by Haocheng
+to do: Generate repeat RNA sequences from the extracted data.
+The length of the repeat RNA is no less than that from the
+the extracted data and no more than 500.
+The repeat times is generated randomly.
+In addition, "the CAG units can be derived" GCA ", "AGC", "CAG", 
+"CGA", "ACG", "GAC" three kinds of repetitive sequence.
+Save the generated repeat RNA sequences to a new CSV file
+'''
+
+def generate_circular_variants(repeat_unit: str) -> list:
+    """
+    Generates all circular variants of a given repeat unit.
+
+    :param repeat_unit: The repeat unit string
+    :return: A list of all circular variants of the repeat unit
+    """
+    return [repeat_unit[i:] + repeat_unit[:i] for i in range(len(repeat_unit))]
+
+def generate_repeat_rna_dataset(data):
+    """
+    Generates repeat RNA sequences from the extracted data.
+
+    :param data: A list of dictionaries containing the repeat unit and the length of the repeat RNA
+    :return: A list of dictionaries containing the repeat unit, the generated repeat RNA sequence, and the RNA length
+    """
+    gen_list = []
+    for item in data:
+        repeat_unit = item["repeat_unit"]
+        length = item["length"]
+        
+        if length is None:
+            length = 499 - 499 % len(repeat_unit)  # Set the length to 499 if it's not fixed
+            repeat_rna = generate_repeat_rna_sequences(repeat_unit, length)
+            gen_list.append({"repeat_unit": repeat_unit, "repeat_rna": repeat_rna, "rna_length": length})
+        else:            
+            for i in range(1, 6):
+                length = length * (2 ** i)
+                if length >= 500:
+                    break
+                else:
+                    repeat_rna = generate_repeat_rna_sequences(repeat_unit, length)
+                    gen_list.append({"repeat_unit": repeat_unit, "repeat_rna": repeat_rna, "rna_length": length})
+    return gen_list
+
+def output_generated_rna(data: list, output_file):
+    """
+    Outputs the generated repeat RNA sequences to a CSV file.
+
+    :param data: A list of dictionaries containing the repeat unit, the generated repeat RNA sequence, and the RNA length
+    :param output_file: The path to the output CSV file
+    """
+    gen_list = generate_repeat_rna_dataset(data)
+    generated_df = pd.DataFrame(gen_list)
+    generated_df.to_csv(output_file, index=False)
+
 # Example usage:
-results = read_rna_sequences_from_csv("/home/thc/RnaPSP/RnaPSP/all data/PsRepeat.csv")
-for result in results:
-    print(result)
+data = read_rna_sequences_from_csv("/home/thc/RnaPSP/RnaPSP/all data/PsRepeat.csv")
+output_generated_rna(data, "/home/thc/RnaPSP/RnaPSP/all data/generated_repeat_rna.csv")
