@@ -46,6 +46,7 @@ to do: delete the repeated sequences acording to the column "rpsid"
 '''
 def delete_repeated_sequences(data):
     data = data.drop_duplicates(subset='rpsid')
+    data = data[data['rnas'].eq("-") | ~data.duplicated(subset='rnas')]
     data = data.reset_index()
     data = data.drop('index', axis=1)
     return data
