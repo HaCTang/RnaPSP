@@ -3,7 +3,7 @@
 to do: repeat RNA generator
 '''
 
-def generate_repeat_rna_sequences(repeat_unit: str, length: int) -> str:
+def generate_repeat_rna_sequences(repeat_unit: str, rna_length: int) -> str:
     """
     Generates a repeat RNA sequence of the specified length.
 
@@ -13,11 +13,11 @@ def generate_repeat_rna_sequences(repeat_unit: str, length: int) -> str:
     """
     repeat_unit = repeat_unit.upper()
 
-    repeat_count = length // len(repeat_unit)
+    repeat_count = rna_length // len(repeat_unit)
     repeat_rna = repeat_unit * repeat_count
 
     # If the generated sequence length is less than the specified length, complete the rest
-    remaining_length = length % len(repeat_unit)
+    remaining_length = rna_length % len(repeat_unit)
     repeat_rna += repeat_unit[:remaining_length]
 
     return repeat_rna
@@ -62,12 +62,14 @@ def read_rna_sequences_from_csv(file_path: str) -> list:
             repeat_unit = match.group(1)
             repeat_count = int(match.group(2))
             length = len(repeat_unit) * repeat_count
+            repeat_rna = repeat_unit * repeat_count
         # Handle the case where the structure is in the format '(UCUCUAAAAA)5'
         elif re.match(r'\((\w+)\)(\d+)', rna_structure):
             match = re.match(r'\((\w+)\)(\d+)', rna_structure)
             repeat_unit = match.group(1)
             repeat_count = int(match.group(2))
             length = len(repeat_unit) * repeat_count
+            repeat_rna = repeat_unit * repeat_count
         # Handle the case where the structure is like 'polyAU'
         elif rna_structure.startswith('poly'):
             repeat_unit = rna_structure[4:]
@@ -75,7 +77,7 @@ def read_rna_sequences_from_csv(file_path: str) -> list:
         else:
             raise ValueError(f"Unrecognized RNA structure format: {rna_structure}")
 
-        results.append({"repeat_unit": repeat_unit, "length": length})
+        results.append({"repeat_unit": repeat_unit, "rna_sequence": repeat_rna ,"rna_length": length})
 
     return results
 
@@ -108,7 +110,12 @@ def enlarge_circular_variants(data: list) -> list:
     for item in data:
         circular_variants = generate_circular_variants(item["repeat_unit"])
         for variant in circular_variants:
-            generated_sequences.append({"repeat_unit": variant, "length": item["length"]})
+            if item["rna_length"] == None:
+                repeat_rna = generate_repeat_rna_sequences(variant, 498)
+                item["rna_length"] = 498
+            else:
+                repeat_rna = generate_repeat_rna_sequences(variant, item["rna_length"])
+            generated_sequences.append({"repeat_unit": variant, "rna_sequence": repeat_rna, "rna_length": item["rna_length"]})
     data = data + generated_sequences
     return(data)
 
@@ -123,12 +130,12 @@ def filter_max_length_repeats(data: list) -> list:
     
     for item in data:
         repeat_unit = item["repeat_unit"]
-        length = item["length"]
+        length = item["rna_length"]
         
         # If the repeat_unit is not in the dictionary, or if the current length is greater than the stored length, update it
         if length is None:
             continue
-        elif repeat_unit not in filtered_dict or length > filtered_dict[repeat_unit]["length"]:
+        elif repeat_unit not in filtered_dict or length > filtered_dict[repeat_unit]["rna_length"]:
             filtered_dict[repeat_unit] = item
     
     # Convert the dictionary back to a list
@@ -145,17 +152,16 @@ def generate_repeat_rna_dataset(data):
     """
     gen_list = []
 
-    # print(data)
-    data = filter_max_length_repeats(data)
+    data1 = filter_max_length_repeats(data)
 
-    for item in data:
+    for item in data1:
         repeat_unit = item["repeat_unit"]
-        length = item["length"]
+        length = item["rna_length"]
         
         if length is None:
             length = 499 - 499 % len(repeat_unit)  # Set the length to 499 if it's not fixed
             repeat_rna = generate_repeat_rna_sequences(repeat_unit, length)
-            gen_list.append({"repeat_unit": repeat_unit, "repeat_rna": repeat_rna, "rna_length": length})
+            gen_list.append({"repeat_unit": repeat_unit, "rna_sequence": repeat_rna, "rna_length": length})
         else:            
             for i in range(1, 6):
                 length = length * (2 ** i)
@@ -163,8 +169,10 @@ def generate_repeat_rna_dataset(data):
                     break
                 else:
                     repeat_rna = generate_repeat_rna_sequences(repeat_unit, length)
-                    gen_list.append({"repeat_unit": repeat_unit, "repeat_rna": repeat_rna, "rna_length": length})
-    return gen_list
+                    gen_list.append({"repeat_unit": repeat_unit, "rna_sequence": repeat_rna, "rna_length": length})
+
+    data = data + gen_list
+    return data
 
 def output_generated_rna(data: list, output_file):
     """
@@ -173,8 +181,13 @@ def output_generated_rna(data: list, output_file):
     :param data: A list of dictionaries containing the repeat unit, the generated repeat RNA sequence, and the RNA length
     :param output_file: The path to the output CSV file
     """
-    gen_list = generate_repeat_rna_dataset(data)
-    generated_df = pd.DataFrame(gen_list)
+    gen_data = generate_repeat_rna_dataset(data)
+    generated_df = pd.DataFrame(gen_data)  
+    generated_df = generated_df.astype({"rna_length": "int"})
+    # Fill the columns “rna_length” with unit "nt"
+    generated_df["rna_length"] = generated_df["rna_length"].apply(lambda x: "-" if x is None else str(x) + "nt")
+    # Fill the “rna_classification” with "repeat RNA"
+    generated_df["rna_classification"] = "repeat RNA"
     generated_df.to_csv(output_file, index=False)
 
 # Example usage:
