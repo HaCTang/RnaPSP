@@ -86,7 +86,7 @@ def read_rna_sequences_from_csv(file_path: str) -> list:
 # print(results)
 
 '''
-08.25.2024 by Haocheng
+08.25.2024-08.26.2024 by Haocheng
 to do: Generate repeat RNA sequences from the extracted data.
 The length of the repeat RNA is no less than that from the
 the extracted data and no more than 500.

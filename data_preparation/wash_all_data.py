@@ -15,6 +15,18 @@ PsData = PsData.dropna(axis=1, how='all')
 
 ##############################################################################
 '''
+08.26.2024 by Haocheng
+只保留data中的下面这些列: "index","pmid", "rpsid", "components_type", "rnas",
+"rna_length", "rna_sequence", "rna_classification"
+'''
+
+PsData = PsData[['index', 'pmid', 'rpsid', 'components_type', 'rnas',
+                    'rna_length', 'rna_sequence', 'rna_classification']]
+# PsData = PsData.dropna(axis=0, how='any')
+##############################################################################
+
+##############################################################################
+'''
 08.10.2024 by Haocheng, 08.20.2024 modified by Haocheng
 to do: only keep the data with one RNA in PsRna.csv
 '''
