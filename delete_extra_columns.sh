@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the directory path containing CSV files
-directory_path="/home/thc/RnaPSP/RnaPSP/all data"
+directory_path="/home/thc/RnaPSP/RnaPSP/all data/"
 
 # Define the full path to the Python script
 python_script_path="/home/thc/RnaPSP/RnaPSP/data_preparation/delete_extra_columns.py"

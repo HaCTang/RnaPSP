@@ -1,4 +1,5 @@
 import os
+import sys  # To get command-line arguments
 import pandas as pd
 
 def process_csv_files(directory):
@@ -23,6 +24,8 @@ def process_csv_files(directory):
                 print(f"Processed and saved: {file_path}")
 
 if __name__ == "__main__":
-    # Replace 'your_directory_path' with the path to your directory
-    directory_path = 'your_directory_path'
-    process_csv_files(directory_path)
+    if len(sys.argv) < 2:
+        print("Usage: python process_csv.py <directory_path>")
+    else:
+        directory_path = sys.argv[1]
+        process_csv_files(directory_path)

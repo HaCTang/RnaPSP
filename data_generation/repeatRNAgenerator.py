@@ -188,7 +188,7 @@ def output_generated_rna(data: list, output_file):
     generated_df["rna_length"] = generated_df["rna_length"].apply(lambda x: "-" if x is None else str(x) + "nt")
     # Fill the “rna_classification” with "repeat RNA"
     generated_df["rna_classification"] = "repeat RNA"
-    generated_df.to_csv(output_file, index=False)
+    generated_df.to_csv(output_file, index=True)
 
 # Example usage:
 data = read_rna_sequences_from_csv("/home/thc/RnaPSP/RnaPSP/all data/PsRepeat.csv")
