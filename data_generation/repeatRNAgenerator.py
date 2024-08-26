@@ -103,6 +103,39 @@ def generate_circular_variants(repeat_unit: str) -> list:
     """
     return [repeat_unit[i:] + repeat_unit[:i] for i in range(len(repeat_unit))]
 
+def enlarge_circular_variants(data: list) -> list:
+    generated_sequences = []
+    for item in data:
+        circular_variants = generate_circular_variants(item["repeat_unit"])
+        for variant in circular_variants:
+            generated_sequences.append({"repeat_unit": variant, "length": item["length"]})
+    data = data + generated_sequences
+    return(data)
+
+def filter_max_length_repeats(data: list) -> list:
+    """
+    Filters out repeat units with the maximum length if there are duplicates.
+
+    :param data: A list of dictionaries containing the repeat unit and length of the repeat RNA
+    :return: A new list with only the maximum length for each repeat unit
+    """
+    filtered_dict = {}
+    
+    for item in data:
+        repeat_unit = item["repeat_unit"]
+        length = item["length"]
+        
+        # If the repeat_unit is not in the dictionary, or if the current length is greater than the stored length, update it
+        if length is None:
+            continue
+        elif repeat_unit not in filtered_dict or length > filtered_dict[repeat_unit]["length"]:
+            filtered_dict[repeat_unit] = item
+    
+    # Convert the dictionary back to a list
+    filtered_list = list(filtered_dict.values())
+    
+    return filtered_list
+
 def generate_repeat_rna_dataset(data):
     """
     Generates repeat RNA sequences from the extracted data.
@@ -111,6 +144,10 @@ def generate_repeat_rna_dataset(data):
     :return: A list of dictionaries containing the repeat unit, the generated repeat RNA sequence, and the RNA length
     """
     gen_list = []
+
+    # print(data)
+    data = filter_max_length_repeats(data)
+
     for item in data:
         repeat_unit = item["repeat_unit"]
         length = item["length"]
@@ -142,4 +179,5 @@ def output_generated_rna(data: list, output_file):
 
 # Example usage:
 data = read_rna_sequences_from_csv("/home/thc/RnaPSP/RnaPSP/all data/PsRepeat.csv")
+data = enlarge_circular_variants(data)
 output_generated_rna(data, "/home/thc/RnaPSP/RnaPSP/all data/generated_repeat_rna.csv")
