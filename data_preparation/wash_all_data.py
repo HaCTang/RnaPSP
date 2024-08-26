@@ -16,12 +16,13 @@ PsData = PsData.dropna(axis=1, how='all')
 ##############################################################################
 '''
 08.26.2024 by Haocheng
-只保留data中的下面这些列: "index","pmid", "rpsid", "components_type", "rnas",
-"rna_length", "rna_sequence", "rna_classification"
+Only keep the following column: "index","pmid", "rpsid", "components_type", "rnas",
+"rna_length", "rna_sequence", "rna_classification", "Uniprot ID", "protein_name"
 '''
 
 PsData = PsData[['index', 'pmid', 'rpsid', 'components_type', 'rnas',
-                    'rna_length', 'rna_sequence', 'rna_classification']]
+                    'rna_length', 'rna_sequence', 'rna_classification',
+                    "Uniprot ID", "protein_name"]]
 # PsData = PsData.dropna(axis=0, how='any')
 ##############################################################################
 

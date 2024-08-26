@@ -5,6 +5,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import KFold
 from sklearn.metrics import classification_report
 import numpy as np
+import os
 
 df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 
@@ -116,7 +117,13 @@ for fold, (train_index, test_index) in enumerate(kf.split(X), 1):
 final_report_df = pd.concat(classification_reports, ignore_index=True)
 
 # Save the DataFrame to a CSV file
-final_report_df.to_csv('classification_report.csv', index=False)
+output_dir = os.path.dirname(os.path.abspath(__file__))
+output_dir = os.path.join(output_dir, 'one_class_svm')
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+output_path = os.path.join(output_dir, 'classification_report.csv')
+final_report_df.to_csv(output_path, index=False)
 
 print("Classification report for each fold has been saved to 'classification_report.csv'.")
 ##############################################################################

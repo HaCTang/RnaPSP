@@ -1,1 +1,1 @@
-index,pmid,rpsid,components_type,rnas,rna_length,rna_sequence,rna_classification,rna_length_num
+index,pmid,rpsid,components_type,rnas,rna_length,rna_sequence,rna_classification,Uniprot ID,protein_name,rna_length_num
