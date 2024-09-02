@@ -22,7 +22,7 @@ Only keep the following column: "index","pmid", "rpsid", "components_type", "rna
 
 PsData = PsData[['index', 'pmid', 'rpsid', 'components_type', 'rnas',
                     'rna_length', 'rna_sequence', 'rna_classification',
-                    "Uniprot ID", "protein_name"]]
+                    'Uniprot ID', 'protein_name']]
 # PsData = PsData.dropna(axis=0, how='any')
 ##############################################################################
 
