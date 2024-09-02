@@ -81,10 +81,12 @@ plt.xlabel('Scores')
 plt.ylabel('Frequency')
 
 # save the plot
-output_dir = 'images'
-os.makedirs(output_dir, exist_ok=True) 
+output_dir = os.path.dirname(os.path.abspath(__file__))
+output_dir = os.path.join(output_dir, 'isolation_forest')
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
-output_path = os.path.join(output_dir, 'iso_fore_histogram.png') 
+output_path = os.path.join(output_dir, 'iso_fore_histogram.png')
 plt.savefig(output_path)
 plt.close()
 
@@ -118,7 +120,7 @@ plt.close()
 # plt.close()
 ##############################################################################
 
-# 可视化异常点
+# visualize the anomalies detected by Isolation Forest
 plt.figure(figsize=(10, 6))
 sns.scatterplot(x='GC_ratio', y='shannon_entropy', hue='label', palette={1: 'blue', -1: 'red'}, data=df)
 plt.title('Anomalies Detected by Isolation Forest')

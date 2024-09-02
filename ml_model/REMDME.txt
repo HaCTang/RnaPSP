@@ -1,0 +1,7 @@
+one class classification models:
+\one_class_SVM
+\isolation_forest
+
+multi class classification models:
+\random_forest
+\svm
