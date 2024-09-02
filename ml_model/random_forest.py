@@ -9,6 +9,11 @@ import os
 
 df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 
+output_dir = os.path.dirname(os.path.abspath(__file__))
+output_dir = os.path.join(output_dir, 'random_forest')
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 ##############################################################################
 # Replace 0 in 'shannon_entropy' to the maximum value of the column
 max_value = df['shannon_entropy'].replace(0, np.nan).max()
@@ -109,5 +114,5 @@ print(classification_report(y_extended, rf_classifier.predict(X_extended)))
 print("ROC AUC Score:", roc_auc_score(y_extended, rf_classifier.predict_proba(X_extended)[:, 1]))
 
 # Save the results
-df.to_csv('/home/thc/RnaPSP/RnaPSP/all data/test_RF.csv', 
-          index=False, encoding='utf-8-sig')
+output_path = os.path.join(output_dir, 'ttest_RF.csv')
+df.to_csv(output_path, index=False)

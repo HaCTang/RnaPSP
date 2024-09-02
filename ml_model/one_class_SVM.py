@@ -18,6 +18,11 @@ to do: Biuld OneClassSVM model
 max_value = df['shannon_entropy'].replace(0, np.nan).max()
 df['shannon_entropy'] = df['shannon_entropy'].replace(0, max_value)
 
+output_dir = os.path.dirname(os.path.abspath(__file__))
+output_dir = os.path.join(output_dir, 'one_class_svm')
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 # weights = {
 #     'GC_ratio': 1.0,  
 #     'G_ratio': 2.0,
@@ -79,9 +84,8 @@ df['label'] = predictions
 sum_feature1 = df['label'].sum()
 print(sum_feature1)
 print(df[df.label==-1])
-df.to_csv('/home/thc/RnaPSP/RnaPSP/all data/test_svm.csv', 
-          index=False, encoding='utf-8-sig')
-
+output_path = os.path.join(output_dir, 'test_svm.csv')
+df.to_csv(output_path, index=False, encoding='utf-8-sig')
 
 ##############################################################################
 '''
@@ -117,11 +121,6 @@ for fold, (train_index, test_index) in enumerate(kf.split(X), 1):
 final_report_df = pd.concat(classification_reports, ignore_index=True)
 
 # Save the DataFrame to a CSV file
-output_dir = os.path.dirname(os.path.abspath(__file__))
-output_dir = os.path.join(output_dir, 'one_class_svm')
-if not os.path.exists(output_dir):
-    os.makedirs(output_dir)
-
 output_path = os.path.join(output_dir, 'classification_report.csv')
 final_report_df.to_csv(output_path, index=False)
 

@@ -8,6 +8,11 @@ import os
 
 df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 
+output_dir = os.path.dirname(os.path.abspath(__file__))
+output_dir = os.path.join(output_dir, 'isolation_forest')
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
 ##############################################################################
 # Replace 0 in 'shannon_entropy' to the maximum value of the column
 max_value = df['shannon_entropy'].replace(0, np.nan).max()
@@ -57,8 +62,8 @@ sum_feature1 = df['label'].sum()
 mean_feature2 = df['score'].mean()
 print(sum_feature1, mean_feature2)
 print(df[df.label==-1])
-df.to_csv('/home/thc/RnaPSP/RnaPSP/all data/test_IsoFor.csv', 
-          index=False, encoding='utf-8-sig')
+output_path = os.path.join(output_dir, 'test_IsoFor.csv')
+df.to_csv(output_path, index=False)
 
 # df['anomaly'] = df['label'].apply(lambda x: 'outlier' if x==-1  else 'inlier') 
 # fig = px.histogram(df,x='scores',color='anomaly') 
