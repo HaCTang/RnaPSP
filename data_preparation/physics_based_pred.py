@@ -10,7 +10,6 @@ import pandas as pd
 Only be used in Linux environment
 computing the Physics-based features of RNA sequences
 """
-PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 def calculate_rna_structures(seq):
     results = {}
 
@@ -53,6 +52,11 @@ def calculate_rna_structures(seq):
 
     return results
 
+##############################################################################
+'''
+One class classification
+'''
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 # Apply the function to the RNA sequences
 df_results = PsData['rna_sequence'].apply(calculate_rna_structures)
 
@@ -61,7 +65,39 @@ PsData = pd.concat([PsData, df_results.apply(pd.Series)], axis=1)
 
 # print(PsData)
 
-# PsData = PsData.drop('level_0', axis=1)
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.reset_index()
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
 PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv', 
               index=False, encoding='utf-8-sig')
+##############################################################################
+
+##############################################################################
+'''
+Two class classification
+'''
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
+# Apply the function to the RNA sequences
+df_results = PsData['rna_sequence'].apply(calculate_rna_structures)
+
+# Convert the results to a DataFrame
+PsData = pd.concat([PsData, df_results.apply(pd.Series)], axis=1)
+
+# print(PsData)
+
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
+PsData = PsData.reset_index()
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv', 
+              index=False, encoding='utf-8-sig')
+##############################################################################
