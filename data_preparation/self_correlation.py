@@ -320,6 +320,9 @@ def vector_avg(vec: np.ndarray) -> float:
 ##############################################################################
 
 ##############################################################################
+'''
+One class classification
+'''
 #to do: apply the above functions to the data
 PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
@@ -337,8 +340,47 @@ PsData['SW_pooling_result'] = PsData['rna_sequence'].apply(
 PsData['SW_pooling_avg'] = PsData['SW_pooling_result'].apply(vector_avg)
 PsData['SW_pooling_var'] = PsData['SW_pooling_result'].apply(vector_var)
 
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.reset_index()
-PsData = PsData.drop('level_0', axis=1)
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
 PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv',
               index=False, encoding='utf-8-sig')
+##############################################################################
+
+##############################################################################
+'''
+Two class classification
+'''
+#to do: apply the above functions to the data
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
+PsData = PsData.dropna(axis=1, how='all')
+
+# Apply the slide_window_kernel function to the PsData
+PsData['SW_kernel_result'] = PsData['rna_sequence'].apply(
+    lambda seq: slide_window_kernel(rule_SW, seq, window_size=3)
+)
+PsData['SW_kernel_avg'] = PsData['SW_kernel_result'].apply(vector_avg)
+PsData['SW_kernel_var'] = PsData['SW_kernel_result'].apply(vector_var)
+
+PsData['SW_pooling_result'] = PsData['rna_sequence'].apply(
+    lambda seq: seq_pooling(rule_SW, seq, l=5, gate_value=2)
+)
+PsData['SW_pooling_avg'] = PsData['SW_pooling_result'].apply(vector_avg)
+PsData['SW_pooling_var'] = PsData['SW_pooling_result'].apply(vector_var)
+
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
+PsData = PsData.reset_index()
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv',
+              index=True, encoding='utf-8-sig')
 ##############################################################################
