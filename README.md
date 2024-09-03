@@ -6,6 +6,10 @@ ViennaRNA 2.6.4 required （only on Linux）
 
 python > 3.6 (best between 3.6 - 3.8)
 
+pytorch = 1.4
+
+cuda = 10.2
+
 ```bash
 python -m pip install viennarna
 ```
