@@ -34,16 +34,14 @@ Delete lines in PsRnaProLess500 that duplicate PsRnaLess500
 '''
 PsRnaProLess500 = PsRnaProLess500[~PsRnaProLess500['rna_sequence'].isin(PsRnaLess500['rna_sequence'])]
 
-# 合并GenRepRna和PsRnaLess500、
+# Concatenate GenRepRna and PsRnaLess500 
 SynthPosData = pd.concat([GenRepRna, PsRnaLess500], axis=0)
-# 给合成数据集添加标签为1，给PsRnaProLess500添加标签为0
+# Add label column
 SynthPosData['label'] = 1
 PsRnaProLess500['label'] = 0
 
-# 合并SynthPosData和PsRnaProLess500为训练数据集
 TrainData = pd.concat([SynthPosData, PsRnaProLess500], axis=0)
 
-# 保存训练数据集
 output_dir = os.path.abspath(os.path.join(current_file_dir, '..', '..', 
                                          'all data', '2 classification'))
 TrainData.to_csv(os.path.join(output_dir, 'TrainData.csv'), index=False, encoding='utf-8-sig')

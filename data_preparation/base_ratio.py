@@ -9,6 +9,7 @@ import numpy as np
 to do: compute base ratio for all data
 '''
 
+##############################################################################
 # not use data with multiple RNAs, only use data with one RNA
 def compute_base_ratio(row):
     
@@ -61,8 +62,12 @@ def compute_AU_ratio(row):
         return None
     else:
         return A_ratio / U_ratio
+##############################################################################
 
-
+##############################################################################
+'''
+One class classification
+'''
 PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
 
@@ -72,10 +77,39 @@ PsData[['A_ratio', 'U_ratio', 'G_ratio', 'C_ratio']] = PsData.apply(compute_base
 PsData['GC_ratio'] = PsData.apply(compute_GC_ratio, axis=1)
 PsData['AU_ratio'] = PsData.apply(compute_AU_ratio, axis=1)
 
-PsData = PsData.drop('level_0', axis=1)
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.reset_index()
-PsData = PsData.drop('Unnamed: 0', axis=1)
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
 # PsData = PsData.drop('level_0', axis=1)
-PsData = PsData.drop('index', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
 PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv',
               index=True, encoding='utf-8-sig')
+##############################################################################
+
+##############################################################################
+'''
+Two class classification
+'''
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
+PsData = PsData.dropna(axis=1, how='all')
+
+# Apply the function and expand the tuple into separate columns
+PsData[['A_ratio', 'U_ratio', 'G_ratio', 'C_ratio']] = PsData.apply(compute_base_ratio, axis=1, result_type='expand')
+
+PsData['GC_ratio'] = PsData.apply(compute_GC_ratio, axis=1)
+PsData['AU_ratio'] = PsData.apply(compute_AU_ratio, axis=1)
+
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
+PsData = PsData.reset_index()
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv',
+              index=True, encoding='utf-8-sig')
+##############################################################################
