@@ -85,6 +85,10 @@ def slide_window_entropy(func: callable, data: str, window_size: int, step_size:
 # print(slide_window_entropy(compute_kolmogorov_complexity, seq1, 8, 2))
 # print(slide_window_entropy(compute_kolmogorov_complexity, seq2, 8, 2))
 
+##############################################################################
+'''
+one class classification
+'''
 #todo: apply the above functions to the data
 PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv')
 PsData = PsData.dropna(axis=1, how='all')
@@ -97,7 +101,46 @@ PsData['shannon_entropy'] = PsData['rna_sequence'].apply(
     lambda seq: slide_window_entropy(compute_shannon_entropy, seq, window_size=6, step_size=1)
 )
 
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
 PsData = PsData.reset_index()
-PsData = PsData.drop('level_0', axis=1)
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
 PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/PsLess500.csv', index=False, encoding='utf-8-sig')
+##############################################################################
 
+##############################################################################
+'''
+two class classification
+'''
+PsData = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
+PsData = PsData.dropna(axis=1, how='all')
+
+# Apply the sliding window entropy calculation to each RNA sequence
+PsData['kolmogorov_complexity'] = PsData['rna_sequence'].apply(
+    lambda seq: slide_window_entropy(compute_kolmogorov_complexity, seq, window_size=6, step_size=6)
+)
+PsData['shannon_entropy6_1'] = PsData['rna_sequence'].apply(
+    lambda seq: slide_window_entropy(compute_shannon_entropy, seq, window_size=6, step_size=1)
+)
+PsData['shannon_entropy6_3'] = PsData['rna_sequence'].apply(
+    lambda seq: slide_window_entropy(compute_shannon_entropy, seq, window_size=6, step_size=3)
+)
+PsData['shannon_entropy10_5'] = PsData['rna_sequence'].apply(
+    lambda seq: slide_window_entropy(compute_shannon_entropy, seq, window_size=10, step_size=5)
+)
+
+PsData = PsData.reset_index()
+if 'level_0' in PsData.columns:
+    PsData = PsData.drop('level_0', axis=1)
+PsData = PsData.reset_index()
+if 'Unnamed: 0' in PsData.columns:
+    PsData = PsData.drop('Unnamed: 0', axis=1)
+# PsData = PsData.drop('level_0', axis=1)
+if 'index' in PsData.columns:
+    PsData = PsData.drop('index', axis=1)
+PsData.to_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv', index=False, encoding='utf-8-sig')
+##############################################################################
