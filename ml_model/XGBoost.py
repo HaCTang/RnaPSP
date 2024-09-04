@@ -5,6 +5,8 @@ from sklearn.metrics import classification_report, roc_auc_score, average_precis
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import os
 
 # 读取数据
@@ -126,3 +128,46 @@ print(f"Average ROC AUC Score: {np.mean(aucs)} ± {np.std(aucs)}")
 output_path = os.path.join(output_dir, 'kfold_XGBoost_results.txt')
 with open(output_path, 'w') as f:
     f.write(f"Average ROC AUC Score: {np.mean(aucs)} ± {np.std(aucs)}\n")
+
+##############################################################################
+# PCA分析
+pca = PCA(n_components=3)
+X_reduced = pca.fit_transform(X_test)
+
+# 创建3D图
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# 使用预测值作为颜色
+predictions = xgb_classifier.predict(X_test)
+scatter = ax.scatter(X_reduced[:, 0], X_reduced[:, 1], X_reduced[:, 2], c=predictions, cmap='coolwarm')
+
+# 添加标题和标签
+ax.set_title('XGBoost_PCA_3d')
+ax.set_xlabel('PCA 1')
+ax.set_ylabel('PCA 2')
+ax.set_zlabel('PCA 3')
+
+# 添加颜色条
+fig.colorbar(scatter)
+plt.savefig(os.path.join(output_dir, 'XGBoost_PCA_3d.png'))
+plt.close()
+
+##############################################################################
+# t-SNE分析
+tsne = TSNE(n_components=3, random_state=42)
+X_tsne = tsne.fit_transform(X_test)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+scatter = ax.scatter(X_tsne[:, 0], X_tsne[:, 1], X_tsne[:, 2], c=predictions, cmap='coolwarm')
+
+ax.set_title('XGBoost_tSNE_3d.png')
+ax.set_xlabel('t-SNE 1')
+ax.set_ylabel('t-SNE 2')
+ax.set_zlabel('t-SNE 3')
+
+fig.colorbar(scatter)
+plt.savefig(os.path.join(output_dir, 'XGBoost_tSNE_3d.png'))
+plt.close()

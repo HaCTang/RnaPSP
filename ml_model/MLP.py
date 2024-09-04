@@ -2,14 +2,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_curve, auc, roc_auc_score, classification_report
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import interp
 import os
 
 df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
@@ -114,9 +114,6 @@ for epoch in range(num_epochs):
     print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}')
 
 # Test the model on the test set and calculate accuracy
-'''
-TODO: Output the y scores
-'''
 model.eval()
 with torch.no_grad():
     y_scores = model(X_test)
@@ -188,7 +185,7 @@ for train_index, val_index in kf.split(X_scaled):
     with torch.no_grad():
         y_scores = model(X_val_fold)
         fpr, tpr, _ = roc_curve(y_val_fold, y_scores)
-        tprs.append(interp(mean_fpr, fpr, tpr))
+        tprs.append(np.interp(mean_fpr, fpr, tpr))
         tprs[-1][0] = 0.0
         roc_auc = auc(fpr, tpr)
         aucs.append(roc_auc)
@@ -216,4 +213,49 @@ plt.ylabel('True Positive Rate')
 plt.title('MLP_ROC')
 plt.legend(loc='lower right')
 plt.savefig(os.path.join(output_dir, 'MLP_KFold_ROC.png'))
+plt.close()
+
+##############################################################################
+# PCA Analysis
+pca = PCA(n_components=3)
+X_reduced= pca.fit_transform(X_test)
+
+# Create 3D plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Use the predictions as colors
+predictions = model.eval()
+with torch.no_grad(): 
+    predictions = model(X_test)
+scatter = ax.scatter(X_reduced[:, 0], X_reduced[:, 1], X_reduced[:, 2], c=predictions, cmap='coolwarm')
+
+# Add title and labels
+ax.set_title('MLP_PCA_3d')
+ax.set_xlabel('PCA 1')
+ax.set_ylabel('PCA 2')
+ax.set_zlabel('PCA 3')
+
+# Add color bar
+fig.colorbar(scatter)
+plt.savefig(os.path.join(output_dir, 'MLP_PCA_3d.png'))
+plt.close()
+
+##############################################################################
+# t-SNE Analysis
+tsne = TSNE(n_components=3, random_state=42)
+X_tsne = tsne.fit_transform(X_test)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+scatter = ax.scatter(X_tsne[:, 0], X_tsne[:, 1], X_tsne[:, 2], c=predictions, cmap='coolwarm')
+
+ax.set_title('MLP_tSNE_3d')
+ax.set_xlabel('t-SNE 1')
+ax.set_ylabel('t-SNE 2')
+ax.set_zlabel('t-SNE 3')
+
+fig.colorbar(scatter)
+plt.savefig(os.path.join(output_dir, 'MLP_tSNE_3d.png'))
 plt.close()
