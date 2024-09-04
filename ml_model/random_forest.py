@@ -57,56 +57,6 @@ X.fillna(X.mean(), inplace=True)
 
 y = df['label']
 
-# Initialize KFold cross-validation
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# Store the results of each fold
-roc_auc_scores = []
-ap_scores = []
-
-# Start KFold cross-validation
-for train_index, test_index in kf.split(X):
-    # Split training and test sets
-    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-
-    # Ensure the test set contains at least one positive and one negative class
-    if len(np.unique(y_test)) < 2:
-        continue  # Skip this fold if the test set contains only one class
-    
-    # Create Random Forest model
-    rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-    
-    # Fit the model
-    rf_classifier.fit(X_train, y_train)
-    
-    # Predict scores for the test set
-    y_scores = rf_classifier.predict_proba(X_test)[:, 1]  # Probabilities for the positive class
-    
-    # Calculate ROC AUC score
-    roc_auc = roc_auc_score(y_test, y_scores)
-    roc_auc_scores.append(roc_auc)
-    
-    # Calculate Average Precision (AP) score
-    ap_score = average_precision_score(y_test, y_scores)
-    ap_scores.append(ap_score)
-
-# Print average scores
-print(roc_auc_scores)
-print(ap_scores)
-print(f"Average ROC AUC Score: {np.mean(roc_auc_scores)}")
-print(f"Average Average Precision Score: {np.mean(ap_scores)}")
-
-# Output results
-output_path = os.path.join(output_dir, 'kfold_RF.csv')
-with open(output_path, 'w') as f:
-    f.write("ROC AUC Scores\n")
-    f.write(','.join(map(str, roc_auc_scores)) + '\n')
-    f.write(f"Average ROC AUC Score: {np.mean(roc_auc_scores)}\n")
-    f.write("Average Precision Scores\n")
-    f.write(','.join(map(str, ap_scores)) + '\n')
-    f.write(f"Average Average Precision Score: {np.mean(ap_scores)}\n")
-
 # Split data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
@@ -141,3 +91,68 @@ print("ROC AUC Score:", roc_auc_score(y_test, y_scores))
 # Save the results
 output_path = os.path.join(output_dir, 'ttest_RF.csv')
 df.to_csv(output_path, index=False)
+
+##############################################################################
+# Initialize KFold cross-validation
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+tprs = []
+aucs = []
+mean_fpr = np.linspace(0, 1, 100)
+
+plt.figure()
+i = 0
+
+for train_index, test_index in kf.split(X):
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+    # Make sure the test set contains both classes
+    if len(np.unique(y_test)) < 2:
+        continue  
+    
+    # Build Random Forest model
+    rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_classifier.fit(X_train, y_train)
+    
+    # Make predictions and calculate ROC curve and AUC
+    y_scores = rf_classifier.predict_proba(X_test)[:, 1]
+    
+    fpr, tpr, _ = roc_curve(y_test, y_scores)
+    tprs.append(np.interp(mean_fpr, fpr, tpr))
+    tprs[-1][0] = 0.0
+    roc_auc = auc(fpr, tpr)
+    aucs.append(roc_auc)
+    plt.plot(fpr, tpr, lw=1, alpha=0.3, label='ROC fold %d (area = %0.2f)' % (i+1, roc_auc))
+
+    i += 1
+
+# Plot ROC curve
+plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=0.8)
+
+mean_tpr = np.mean(tprs, axis=0)
+mean_tpr[-1] = 1.0
+mean_auc = auc(mean_fpr, mean_tpr)
+std_auc = np.std(aucs)
+plt.plot(mean_fpr, mean_tpr, color='b', label=r'Mean ROC (area = %0.2f ± %0.2f)' % (mean_auc, std_auc), lw=2, alpha=0.8)
+
+std_tpr = np.std(tprs, axis=0)
+tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+plt.fill_between(mean_fpr, tprs_lower, tprs_upper, color='gray', alpha=0.2, label=r'± 1 std. dev.')
+
+plt.xlim([-0.05, 1.05])
+plt.ylim([-0.05, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC)')
+plt.legend(loc='lower right')
+plt.savefig(os.path.join(output_dir, 'roc_curve_cross_validation.png'))
+plt.close()
+
+# print and save the results
+print(f"Average ROC AUC Score: {np.mean(aucs)} ± {np.std(aucs)}")
+output_path = os.path.join(output_dir, 'kfold_RF_results.txt')
+with open(output_path, 'w') as f:
+    f.write(f"Average ROC AUC Score: {np.mean(aucs)} ± {np.std(aucs)}\n")
