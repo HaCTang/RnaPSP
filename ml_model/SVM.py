@@ -94,3 +94,69 @@ df['predicted_proba'] = svm_classifier.predict_proba(X)[:, 1]
 
 output_path = os.path.join(output_dir, 'SVM_results.csv')
 df.to_csv(output_path, index=False)
+
+##############################################################################
+# Initialize cross-validation
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# Variables to store cross-validation results
+tprs = []
+mean_fpr = np.linspace(0, 1, 100)
+roc_aucs = []
+classification_reports = []
+i = 0
+
+for train_index, test_index in kf.split(X):
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+    
+    # Build SVM model
+    svm_classifier = SVC(kernel='linear', probability=True, random_state=42)
+    svm_classifier.fit(X_train, y_train)
+    
+    # Make predictions
+    y_scores = svm_classifier.predict_proba(X_test)[:, 1] 
+    
+    # Calculate ROC curve and AUC
+    fpr, tpr, _ = roc_curve(y_test, y_scores)
+    tprs.append(np.interp(mean_fpr, fpr, tpr))
+    tprs[-1][0] = 0.0
+    roc_auc = auc(fpr, tpr)
+    roc_aucs.append(roc_auc)
+    
+    # Plot ROC curve for the fold
+    plt.plot(fpr, tpr, lw=1, alpha=0.3, label=f'ROC fold {i+1} (area = {roc_auc:.2f})')
+    i += 1
+
+# Plot mean ROC curve
+mean_tpr = np.mean(tprs, axis=0)
+mean_tpr[-1] = 1.0
+mean_auc = auc(mean_fpr, mean_tpr)
+std_tpr = np.std(tprs, axis=0)
+tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+
+plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=0.8)
+plt.plot(mean_fpr, mean_tpr, color='b', label=f'Mean ROC (area = {mean_auc:.2f})', lw=2, alpha=0.8)
+plt.fill_between(mean_fpr, tprs_lower, tprs_upper, color='gray', alpha=0.2)
+plt.xlim([-0.05, 1.05])
+plt.ylim([-0.05, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('SVM_ROC)')
+plt.legend(loc='lower right')
+plt.savefig(os.path.join(output_dir, 'roc_curve.png'))
+plt.close()
+
+# Output results
+print("Average ROC AUC Score:", np.mean(roc_aucs))
+print("Classification Reports:")
+for i, report in enumerate(classification_reports):
+    print(f"\nFold {i+1}:\n{report}")
+
+# Save the results
+df['predicted_label'] = svm_classifier.predict(X)
+df['predicted_proba'] = svm_classifier.predict_proba(X)[:, 1] 
+
+output_path = os.path.join(output_dir, 'SVM_results.csv')
+df.to_csv(output_path, index=False)
