@@ -10,6 +10,8 @@ pytorch = 1.4
 
 cuda = 10.2
 
+xgboost = 1.3.3
+
 ```bash
 python -m pip install viennarna
 ```

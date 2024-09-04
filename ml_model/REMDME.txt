@@ -5,3 +5,4 @@ one class classification models:
 multi class classification models:
 \random_forest
 \svm
+\XGBoost
