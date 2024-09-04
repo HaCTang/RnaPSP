@@ -181,7 +181,7 @@ ax.set_zlabel('PCA 3')
 fig.colorbar(scatter)
 
 plt.savefig(os.path.join(output_dir, 'RF_PCA_3d.png'))
-plt.show()
+plt.close()
 
 ##############################################################################
 '''
@@ -204,5 +204,35 @@ ax.set_zlabel('t-SNE 3')
 fig.colorbar(scatter)
 
 plt.savefig(os.path.join(output_dir, 'RF_tSNE_3d.png'))
-plt.show()
+plt.close()
 ##############################################################################
+##############################################################################
+'''
+Recall vs. Acceptance Rate Plot
+'''
+acceptance_rates = [0.025, 0.05, 0.10, 0.15, 0.20, 0.30, 0.50]
+recall_values = []
+
+for rate in acceptance_rates:
+    recall_for_rate = []
+    for fpr, tpr in zip(tprs, tprs):  # Use tprs instead of mean_tpr
+        idx = np.argmin(np.abs(fpr - rate))
+        recall_for_rate.append(tpr[idx])
+    recall_values.append(np.mean(recall_for_rate))
+
+# Create DataFrame for the table
+recall_df = pd.DataFrame({
+    'Acceptance Rate': acceptance_rates,
+    'Recall': recall_values
+})
+recall_df.to_csv(os.path.join(output_dir, 'RF_recall_vs_acceptance_rate.csv'), index=False)
+
+# Plot Recall vs Acceptance Rate
+plt.figure()
+plt.plot(acceptance_rates, recall_values, marker='o', linestyle='-', color='b')
+plt.xlabel('Acceptance Rate')
+plt.ylabel('Recall')
+plt.title('rf Recall vs Acceptance Rate')
+plt.grid(True)
+plt.savefig(os.path.join(output_dir, 'RF_recall_acceptance.png'))
+plt.close()
