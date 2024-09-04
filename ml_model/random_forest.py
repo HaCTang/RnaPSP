@@ -148,7 +148,7 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('RF_ROC')
 plt.legend(loc='lower right')
-plt.savefig(os.path.join(output_dir, 'roc_curve_cross_validation.png'))
+plt.savefig(os.path.join(output_dir, 'RF_KFold_ROC.png'))
 plt.close()
 
 # print and save the results

@@ -118,7 +118,7 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('XGBoost_ROC')
 plt.legend(loc='lower right')
-plt.savefig(os.path.join(output_dir, 'roc_curve_cross_validation.png'))
+plt.savefig(os.path.join(output_dir, 'XGBoost_KFold_ROC.png'))
 plt.close()
 
 # 打印和保存平均分数

@@ -145,7 +145,7 @@ plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
 plt.title('SVM_ROC)')
 plt.legend(loc='lower right')
-plt.savefig(os.path.join(output_dir, 'roc_curve.png'))
+plt.savefig(os.path.join(output_dir, 'SVM_KFold_ROC.png'))
 plt.close()
 
 # Output results
