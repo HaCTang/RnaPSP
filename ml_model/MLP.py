@@ -4,7 +4,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import roc_curve, auc, roc_auc_score, classification_report
+from sklearn.metrics import roc_curve, auc, roc_auc_score, classification_report, recall_score
+import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import pandas as pd
@@ -143,7 +144,7 @@ plt.savefig(os.path.join(output_dir, 'roc_curve.png'))
 plt.close()
 
 ##############################################################################
-# Save the results
+# KFold cross-validation
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 tprs = []
 aucs = []
@@ -184,15 +185,19 @@ for train_index, val_index in kf.split(X_scaled):
     model.eval()
     with torch.no_grad():
         y_scores = model(X_val_fold)
+        # Calculate ROC curve and AUC
         fpr, tpr, _ = roc_curve(y_val_fold, y_scores)
         tprs.append(np.interp(mean_fpr, fpr, tpr))
         tprs[-1][0] = 0.0
         roc_auc = auc(fpr, tpr)
         aucs.append(roc_auc)
         plt.plot(fpr, tpr, lw=1, alpha=0.3, label='ROC fold %d (area = %0.2f)' % (i+1, roc_auc))
-
+       
     i += 1
 
+'''
+Draw ROC_AUC curve
+'''
 plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=0.8)
 
 mean_tpr = np.mean(tprs, axis=0)
@@ -265,3 +270,7 @@ ax.set_zlabel('t-SNE 3')
 fig.colorbar(scatter)
 plt.savefig(os.path.join(output_dir, 'MLP_tSNE_3d.png'))
 plt.close()
+##############################################################################
+'''
+Recall and Acceptance Rate Calculation
+'''
