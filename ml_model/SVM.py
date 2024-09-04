@@ -161,7 +161,7 @@ for i, report in enumerate(classification_reports):
 
 ##############################################################################
 '''
-08.23.2024 by Haocheng
+09.04.2024 by Haocheng
 to do: PCA analysis Visualization
 '''
 pca = PCA(n_components=3)
@@ -188,7 +188,7 @@ plt.close()
 
 ##############################################################################
 '''
-08.23.2024 by Haocheng
+09.04.2024 by Haocheng
 to do: t-SNE analysis Visualization
 '''
 tsne = TSNE(n_components=3, random_state=42)

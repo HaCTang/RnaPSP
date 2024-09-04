@@ -9,7 +9,6 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
 
-# 读取数据
 df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
 
 output_dir = os.path.dirname(os.path.abspath(__file__))
@@ -17,7 +16,6 @@ output_dir = os.path.join(output_dir, 'xgboost')
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# 处理数据
 max_value = df['shannon_entropy6_1'].replace(0, np.nan).max()
 df['shannon_entropy6_1'] = df['shannon_entropy6_1'].replace(0, max_value)
 max_value = df['shannon_entropy6_3'].replace(0, np.nan).max()
@@ -25,7 +23,6 @@ df['shannon_entropy6_3'] = df['shannon_entropy6_3'].replace(0, max_value)
 max_value = df['shannon_entropy6_1'].replace(0, np.nan).max()
 df['shannon_entropy10_5'] = df['shannon_entropy10_5'].replace(0, max_value)
 
-# 选择训练的特征列
 X = df[['GC_ratio', 
         'G_ratio', 
         'AU_ratio', 
@@ -48,7 +45,6 @@ X = df[['GC_ratio',
         'repeat_rna',
         'else_rna']].copy()
 
-# 处理缺失值和极值
 X.fillna(X.mean(), inplace=True)
 X.replace([np.inf, -np.inf], np.nan, inplace=True)
 X = X.clip(lower=-1e10, upper=1e10)
@@ -56,11 +52,11 @@ X.fillna(X.mean(), inplace=True)
 
 y = df['label']
 
-# 数据标准化
+# Standardize features
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# 初始化KFold交叉验证
+# Initialize KFold for cross-validation
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
 tprs = []
@@ -71,24 +67,21 @@ plt.figure()
 i = 0
 
 for train_index, test_index in kf.split(X_scaled):
-    # 划分训练集和测试集
+    
     X_train, X_test = X_scaled[train_index], X_scaled[test_index]
     y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
-    # 确保测试集中至少有一个正类和一个负类
+    # Make sure there are both positive and negative samples in the test set
     if len(np.unique(y_test)) < 2:
-        continue  # 如果测试集只包含一个类，则跳过此折叠
+        continue  
     
-    # 创建XGBoost模型
+    # Build XGBoost model
     xgb_classifier = xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss', random_state=42)
     
-    # 训练模型
     xgb_classifier.fit(X_train, y_train)
     
-    # 预测测试集的分数
     y_scores = xgb_classifier.predict_proba(X_test)[:, 1]
     
-    # 计算ROC曲线和AUC
     fpr, tpr, _ = roc_curve(y_test, y_scores)
     tprs.append(np.interp(mean_fpr, fpr, tpr))
     tprs[-1][0] = 0.0
@@ -98,17 +91,17 @@ for train_index, test_index in kf.split(X_scaled):
 
     i += 1
 
-# 画对角线
+# Draw diagonal line
 plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=0.8)
 
-# 计算并画出平均ROC曲线
+# Calculate and draw mean ROC curve
 mean_tpr = np.mean(tprs, axis=0)
 mean_tpr[-1] = 1.0
 mean_auc = auc(mean_fpr, mean_tpr)
 std_auc = np.std(aucs)
 plt.plot(mean_fpr, mean_tpr, color='b', label=r'Mean ROC (area = %0.2f ± %0.2f)' % (mean_auc, std_auc), lw=2, alpha=0.8)
 
-# 计算并画出标准差区域
+# Draw standard deviation area
 std_tpr = np.std(tprs, axis=0)
 tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
 tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
@@ -123,38 +116,40 @@ plt.legend(loc='lower right')
 plt.savefig(os.path.join(output_dir, 'XGBoost_KFold_ROC.png'))
 plt.close()
 
-# 打印和保存平均分数
+# Print and save results 
 print(f"Average ROC AUC Score: {np.mean(aucs)} ± {np.std(aucs)}")
 output_path = os.path.join(output_dir, 'kfold_XGBoost_results.txt')
 with open(output_path, 'w') as f:
     f.write(f"Average ROC AUC Score: {np.mean(aucs)} ± {np.std(aucs)}\n")
 
 ##############################################################################
-# PCA分析
+'''
+09.04.2024 by Haocheng
+to do: PCA analysis Visualization
+'''
 pca = PCA(n_components=3)
 X_reduced = pca.fit_transform(X_test)
 
-# 创建3D图
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-# 使用预测值作为颜色
 predictions = xgb_classifier.predict(X_test)
 scatter = ax.scatter(X_reduced[:, 0], X_reduced[:, 1], X_reduced[:, 2], c=predictions, cmap='coolwarm')
 
-# 添加标题和标签
 ax.set_title('XGBoost_PCA_3d')
 ax.set_xlabel('PCA 1')
 ax.set_ylabel('PCA 2')
 ax.set_zlabel('PCA 3')
 
-# 添加颜色条
 fig.colorbar(scatter)
 plt.savefig(os.path.join(output_dir, 'XGBoost_PCA_3d.png'))
 plt.close()
 
 ##############################################################################
-# t-SNE分析
+'''
+09.04.2024 by Haocheng
+to do: t-SNE analysis Visualization
+'''
 tsne = TSNE(n_components=3, random_state=42)
 X_tsne = tsne.fit_transform(X_test)
 

@@ -216,7 +216,10 @@ plt.savefig(os.path.join(output_dir, 'MLP_KFold_ROC.png'))
 plt.close()
 
 ##############################################################################
-# PCA Analysis
+'''
+09.04.2024 by Haocheng
+to do: PCA analysis Visualization
+'''
 pca = PCA(n_components=3)
 X_reduced= pca.fit_transform(X_test)
 
@@ -242,7 +245,10 @@ plt.savefig(os.path.join(output_dir, 'MLP_PCA_3d.png'))
 plt.close()
 
 ##############################################################################
-# t-SNE Analysis
+'''
+09.04.2024 by Haocheng
+to do: t-SNE analysis Visualization
+'''
 tsne = TSNE(n_components=3, random_state=42)
 X_tsne = tsne.fit_transform(X_test)
 

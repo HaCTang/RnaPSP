@@ -184,7 +184,10 @@ plt.savefig(os.path.join(output_dir, 'RF_PCA_3d.png'))
 plt.show()
 
 ##############################################################################
-# t-SNE analysis Visualization
+'''
+09.04.2024 by Haocheng
+to do: t-SNE analysis Visualization
+'''
 tsne = TSNE(n_components=3, random_state=42)
 X_tsne = tsne.fit_transform(X_test)
 
