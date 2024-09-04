@@ -105,6 +105,7 @@ tprs = []
 mean_fpr = np.linspace(0, 1, 100)
 roc_aucs = []
 classification_reports = []
+aucs = []
 i = 0
 
 for train_index, test_index in kf.split(X):
@@ -124,6 +125,7 @@ for train_index, test_index in kf.split(X):
     tprs.append(np.interp(mean_fpr, fpr, tpr))
     tprs[-1][0] = 0.0
     roc_auc = auc(fpr, tpr)
+    aucs.append(roc_auc)
     roc_aucs.append(roc_auc)
     
     # Store classification report for each fold
@@ -137,18 +139,20 @@ for train_index, test_index in kf.split(X):
 mean_tpr = np.mean(tprs, axis=0)
 mean_tpr[-1] = 1.0
 mean_auc = auc(mean_fpr, mean_tpr)
+std_auc = np.std(aucs)
+
 std_tpr = np.std(tprs, axis=0)
 tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
 tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
 
 plt.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', label='Luck', alpha=0.8)
-plt.plot(mean_fpr, mean_tpr, color='b', label=f'Mean ROC (area = {mean_auc:.2f})', lw=2, alpha=0.8)
-plt.fill_between(mean_fpr, tprs_lower, tprs_upper, color='gray', alpha=0.2)
+plt.plot(mean_fpr, mean_tpr, color='b', label=f'Mean ROC (area = %0.2f ± %0.2f)' % (mean_auc, std_auc), lw=2, alpha=0.8)
+plt.fill_between(mean_fpr, tprs_lower, tprs_upper, color='gray', alpha=0.2, label=r'± 1 std. dev.')
 plt.xlim([-0.05, 1.05])
 plt.ylim([-0.05, 1.05])
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('SVM ROC Curve (KFold)')
+plt.title('SVM_ROC')
 plt.legend(loc='lower right')
 plt.savefig(os.path.join(output_dir, 'SVM_KFold_ROC.png'))
 plt.close()
@@ -208,32 +212,3 @@ fig.colorbar(scatter)
 plt.savefig(os.path.join(output_dir, 'SVM_tSNE_3d.png'))
 plt.close()
 ##############################################################################
-'''
-Recall vs. Acceptance Rate Plot
-'''
-acceptance_rates = [0.025, 0.05, 0.10, 0.15, 0.20, 0.30, 0.50]
-recall_values = []
-
-for rate in acceptance_rates:
-    recall_for_rate = []
-    for fpr, tpr in zip(tprs, tprs):  # Use tprs instead of mean_tpr
-        idx = np.argmin(np.abs(fpr - rate))
-        recall_for_rate.append(tpr[idx])
-    recall_values.append(np.mean(recall_for_rate))
-
-# Create DataFrame for the table
-recall_df = pd.DataFrame({
-    'Acceptance Rate': acceptance_rates,
-    'Recall': recall_values
-})
-recall_df.to_csv(os.path.join(output_dir, 'SVM_recall_vs_acceptance_rate.csv'), index=False)
-
-# Plot Recall vs Acceptance Rate
-plt.figure()
-plt.plot(acceptance_rates, recall_values, marker='o', linestyle='-', color='b')
-plt.xlabel('Acceptance Rate')
-plt.ylabel('Recall')
-plt.title('SVM Recall vs Acceptance Rate')
-plt.grid(True)
-plt.savefig(os.path.join(output_dir, 'SVM_recall_acceptance.png'))
-plt.close()
