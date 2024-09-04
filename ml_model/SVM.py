@@ -4,8 +4,12 @@ from sklearn.metrics import classification_report, roc_auc_score, average_precis
 from sklearn.model_selection import KFold, train_test_split
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import os
 
+# Load data
 df = pd.read_csv('/home/thc/RnaPSP/RnaPSP/all data/2 classification/TrainData.csv')
 
 # Output directory
@@ -15,19 +19,16 @@ if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 ##############################################################################
-# Replace 0 in 'shannon_entropy' to the maximum value of the column
-max_value = df['shannon_entropy6_1'].replace(0, np.nan).max()
-df['shannon_entropy6_1'] = df['shannon_entropy6_1'].replace(0, max_value)
-max_value = df['shannon_entropy6_3'].replace(0, np.nan).max()
-df['shannon_entropy6_3'] = df['shannon_entropy6_3'].replace(0, max_value)
-max_value = df['shannon_entropy6_1'].replace(0, np.nan).max()
-df['shannon_entropy10_5'] = df['shannon_entropy10_5'].replace(0, max_value)
+# Replace 0 in 'shannon_entropy' with the maximum value of the column
+columns_to_replace = ['shannon_entropy6_1', 'shannon_entropy6_3', 'shannon_entropy10_5']
+for col in columns_to_replace:
+    max_value = df[col].replace(0, np.nan).max()
+    df[col] = df[col].replace(0, max_value)
 
 # Choose the columns to be used for training
 X = df[['GC_ratio', 
         'G_ratio', 
         'AU_ratio', 
-        # 'kolmogorov_complexity', 
         'shannon_entropy6_1',
         'shannon_entropy6_3',
         'shannon_entropy10_5',
@@ -60,12 +61,12 @@ y = df['label']
 # Split data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Biuld SVM model
+# Build SVM model
 svm_classifier = SVC(kernel='linear', probability=True, random_state=42)
 svm_classifier.fit(X_train, y_train)
 
-# make predictions
-y_scores = svm_classifier.predict_proba(X_test)[:, 1] 
+# Make predictions
+y_scores = svm_classifier.predict_proba(X_test)[:, 1]
 
 # Calculate ROC curve and AUC
 fpr, tpr, thresholds = roc_curve(y_test, y_scores)
@@ -90,7 +91,7 @@ print("ROC AUC Score:", roc_auc_score(y_test, y_scores))
 
 # Save the results
 df['predicted_label'] = svm_classifier.predict(X)
-df['predicted_proba'] = svm_classifier.predict_proba(X)[:, 1] 
+df['predicted_proba'] = svm_classifier.predict_proba(X)[:, 1]
 
 output_path = os.path.join(output_dir, 'SVM_results.csv')
 df.to_csv(output_path, index=False)
@@ -115,7 +116,8 @@ for train_index, test_index in kf.split(X):
     svm_classifier.fit(X_train, y_train)
     
     # Make predictions
-    y_scores = svm_classifier.predict_proba(X_test)[:, 1] 
+    y_scores = svm_classifier.predict_proba(X_test)[:, 1]
+    y_pred = svm_classifier.predict(X_test)
     
     # Calculate ROC curve and AUC
     fpr, tpr, _ = roc_curve(y_test, y_scores)
@@ -123,6 +125,9 @@ for train_index, test_index in kf.split(X):
     tprs[-1][0] = 0.0
     roc_auc = auc(fpr, tpr)
     roc_aucs.append(roc_auc)
+    
+    # Store classification report for each fold
+    classification_reports.append(classification_report(y_test, y_pred))
     
     # Plot ROC curve for the fold
     plt.plot(fpr, tpr, lw=1, alpha=0.3, label=f'ROC fold {i+1} (area = {roc_auc:.2f})')
@@ -143,7 +148,7 @@ plt.xlim([-0.05, 1.05])
 plt.ylim([-0.05, 1.05])
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('SVM_ROC)')
+plt.title('SVM ROC Curve (KFold)')
 plt.legend(loc='lower right')
 plt.savefig(os.path.join(output_dir, 'SVM_KFold_ROC.png'))
 plt.close()
@@ -154,9 +159,51 @@ print("Classification Reports:")
 for i, report in enumerate(classification_reports):
     print(f"\nFold {i+1}:\n{report}")
 
-# Save the results
-df['predicted_label'] = svm_classifier.predict(X)
-df['predicted_proba'] = svm_classifier.predict_proba(X)[:, 1] 
+##############################################################################
+'''
+08.23.2024 by Haocheng
+to do: PCA analysis Visualization
+'''
+pca = PCA(n_components=3)
+X_reduced = pca.fit_transform(X_test)
 
-output_path = os.path.join(output_dir, 'SVM_results.csv')
-df.to_csv(output_path, index=False)
+# Create 3D plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Use the predictions as colors
+predictions = svm_classifier.predict(X_test)
+scatter = ax.scatter(X_reduced[:, 0], X_reduced[:, 1], X_reduced[:, 2], c=predictions, cmap='coolwarm')
+
+# Add title and labels
+ax.set_title('SVM Decision Boundary (PCA 3D reduced)')
+ax.set_xlabel('PCA 1')
+ax.set_ylabel('PCA 2')
+ax.set_zlabel('PCA 3')
+
+# Add color bar
+fig.colorbar(scatter)
+
+plt.show()
+
+##############################################################################
+'''
+08.23.2024 by Haocheng
+to do: t-SNE analysis Visualization
+'''
+tsne = TSNE(n_components=3, random_state=42)
+X_tsne = tsne.fit_transform(X_test)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+scatter = ax.scatter(X_tsne[:, 0], X_tsne[:, 1], X_tsne[:, 2], c=predictions, cmap='coolwarm')
+
+ax.set_title('t-SNE Visualization of Clusters (3D)')
+ax.set_xlabel('t-SNE 1')
+ax.set_ylabel('t-SNE 2')
+ax.set_zlabel('t-SNE 3')
+
+fig.colorbar(scatter)
+
+plt.show()
