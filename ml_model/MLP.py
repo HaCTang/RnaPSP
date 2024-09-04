@@ -293,6 +293,6 @@ plt.xlabel('Acceptance Rate')
 plt.ylabel('Recall')
 plt.title('Recall vs Acceptance Rate')
 plt.grid(True)
-plt.savefig(os.path.join(output_dir, 'MLP_recall/acceptance.png'))
+plt.savefig(os.path.join(output_dir, 'MLP_recall_acceptance.png'))
 plt.close()
 
